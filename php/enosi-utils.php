@@ -1,25 +1,28 @@
 <?php
-require_once __DIR__ . '/singleton-wp-filesystem.php';
 
-class Utils {
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+require_once __DIR__ . '/enosi-filesystem-singleton.php';
+
+class EnosiUtils {
     public static function generateUuid(): string {
         return uniqid('unity_', true);
     }
     
     /**
      * Deletes a folder and its contents in a WordPress-friendly way.
-     * Uses WPFilesystemSingleton for directories and wp_delete_file for files.
+     * Uses EnosiFileSystemSingleton for directories and wp_delete_file for files.
      *
      * @param string $dir Path to the directory to delete.
      * @return bool True on success, false on failure.
      */
     public static function deleteFolder(string $dir): bool {
         if (!is_dir($dir)) {
-            Utils::error(esc_html__( 'Not a valid directory', 'wp-unity-webgl' ) . ' : ' . $dir);
+            EnosiUtils::error(esc_html__( 'Not a valid directory', 'enosi-embedder-unity' ) . ' : ' . $dir);
             return false;
         }
 
-        $fs = WPFilesystemSingleton::getInstance();
+        $fs = EnosiFileSystemSingleton::getInstance();
         $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
         $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
 
@@ -34,7 +37,7 @@ class Utils {
 
         $success = $fs->rmdir($dir, true);
         if (!$success) {
-            Utils::error(esc_html__( 'Failed to delete directory', 'wp-unity-webgl' ) . ' : ' . $dir);
+            EnosiUtils::error(esc_html__( 'Failed to delete directory', 'enosi-embedder-unity' ) . ' : ' . $dir);
         }
         return $success;
     }
@@ -177,7 +180,7 @@ class Utils {
             
             // If the name changes, rename
             if ($newPath !== $oldPath) {
-                $fs = WPFilesystemSingleton::getInstance();
+                $fs = EnosiFileSystemSingleton::getInstance();
                 $fs->rename($oldPath, $newPath, true);
             }
             
@@ -189,16 +192,16 @@ class Utils {
 
     // Display an error message in the WordPress admin interface
     public static function error(string $message): void {
-        echo "<p style='color:red;'>❌ " . esc_html__( 'Error: ', 'wp-unity-webgl' ) . wp_kses_post( $message ) . "</p>";
+        echo "<p style='color:red;'>❌ " . esc_html__( 'Error: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
     }
     
     // Display an informational message in the WordPress admin interface
     public static function info(string $message): void {
-        echo "<p style='color:black;'>ℹ️ " . esc_html__( 'Info: ', 'wp-unity-webgl' ) . wp_kses_post( $message ) . "</p>";
+        echo "<p style='color:black;'>ℹ️ " . esc_html__( 'Info: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
     }
 
     // Display a validation message in the WordPress admin interface
     public static function valid(string $message): void {
-        echo "<p style='color:green;'>✅ " . esc_html__( 'Success: ', 'wp-unity-webgl' ) . wp_kses_post( $message ) . "</p>";
+        echo "<p style='color:green;'>✅ " . esc_html__( 'Success: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
     }
 }

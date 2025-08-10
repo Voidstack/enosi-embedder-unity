@@ -1,8 +1,11 @@
 <?php
-require_once __DIR__ . '/utils.php';
-require_once __DIR__ . '/singleton-wp-filesystem.php';
 
-class BuildExtractor {
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+require_once __DIR__ . '/enosi-utils.php';
+require_once __DIR__ . '/enosi-filesystem-singleton.php';
+
+class EnosiBuildExtractor {
     // Path to the ZIP archive
     private string $zipPath;
     // Target directory for the extracted build
@@ -20,7 +23,7 @@ class BuildExtractor {
     }
     
     public function extract(): bool {
-        Utils::info(__('Starting extraction', 'wp-unity-webgl'));
+        EnosiUtils::info(__('Starting extraction', 'enosi-embedder-unity'));
         $result = true;
         
         if (!$this->createTempDirectory() || !$this->extractZipToTemp() || !$this->processExtractedFiles() || !$this->moveToTargetDirectory())
@@ -34,7 +37,7 @@ class BuildExtractor {
     // Create the temporary directory
     private function createTempDirectory(): bool {
         if (!wp_mkdir_p($this->tmpDir)) {
-            Utils::error(__('Unable to create temporary extraction folder.', 'wp-unity-webgl'));
+            EnosiUtils::error(__('Unable to create temporary extraction folder.', 'enosi-embedder-unity'));
             return false;
         }
         return true;
@@ -45,13 +48,13 @@ class BuildExtractor {
         $zip = new ZipArchive;
         if ($zip->open($this->zipPath) !== true) {
             // translators: %s is the path to the zip file that couldn't be opened.
-            Utils::error(sprintf(__('Unable to open the .zip file (%s)', 'wp-unity-webgl'), $this->zipPath));
+            EnosiUtils::error(sprintf(__('Unable to open the .zip file (%s)', 'enosi-embedder-unity'), $this->zipPath));
             return false;
         }
         if (!$zip->extractTo($this->tmpDir)) {
             $zip->close();
-            Utils::deleteFolder($this->tmpDir);
-            Utils::error(__('Extraction failed to temporary folder.', 'wp-unity-webgl'));
+            EnosiUtils::deleteFolder($this->tmpDir);
+            EnosiUtils::error(__('Extraction failed to temporary folder.', 'enosi-embedder-unity'));
             return false;
         }
         $zip->close();
@@ -63,11 +66,11 @@ class BuildExtractor {
         $this->lowercaseAllFilenames($this->tmpDir);
         
         if (!$this->verifyExtractedFiles($this->tmpDir)) {
-            Utils::deleteFolder($this->tmpDir);
-            Utils::error(
-                __('Missing expected build files. ', 'wp-unity-webgl') .
-                Utils::arrayToString($this->expectedFiles) . '</br>' .
-                __('The .zip file MUST have the same name as the files it contains.', 'wp-unity-webgl')
+            EnosiUtils::deleteFolder($this->tmpDir);
+            EnosiUtils::error(
+                __('Missing expected build files. ', 'enosi-embedder-unity') .
+                EnosiUtils::arrayToString($this->expectedFiles) . '</br>' .
+                __('The .zip file MUST have the same name as the files it contains.', 'enosi-embedder-unity')
             );
             return false;
         }
@@ -77,12 +80,12 @@ class BuildExtractor {
     // Move the temporary directory to the target location
     private function moveToTargetDirectory(): bool {
         if (file_exists($this->targetDir)) {
-            Utils::deleteFolder($this->targetDir);
+            EnosiUtils::deleteFolder($this->targetDir);
         }
-        $fsSingleton = WPFilesystemSingleton::getInstance();
+        $fsSingleton = EnosiFileSystemSingleton::getInstance();
         if (!$fsSingleton->move($this->tmpDir, $this->targetDir, true)) {
-            Utils::deleteFolder($this->tmpDir);
-            Utils::error(__('Failed to move build to target directory.', 'wp-unity-webgl'));
+            EnosiUtils::deleteFolder($this->tmpDir);
+            EnosiUtils::error(__('Failed to move build to target directory.', 'enosi-embedder-unity'));
             return false;
         }
         return true;
@@ -99,7 +102,7 @@ class BuildExtractor {
             }
         }
         // Display found files for debugging
-        Utils::info(__('Files found: ', 'wp-unity-webgl') . Utils::arrayToString($foundFiles));
+        EnosiUtils::info(__('Files found: ', 'enosi-embedder-unity') . EnosiUtils::arrayToString($foundFiles));
         foreach ($this->expectedFiles as $expected) {
             if (!in_array($expected, $foundFiles)) {
                 return false;
@@ -124,7 +127,7 @@ class BuildExtractor {
             // If the name changes only in casing, some systems (e.g. Windows) may not recognize the change
             // Workaround: rename to a temporary name, then to the final lowercase name
             if ($oldPath !== $newPath) {
-                $fs = WPFilesystemSingleton::getInstance();
+                $fs = EnosiFileSystemSingleton::getInstance();
                 $fs->rename($oldPath, $newPath, true);
             }
         }

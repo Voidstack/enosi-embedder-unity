@@ -1,6 +1,6 @@
 <?php
 
-class WPFilesystemSingleton {
+class EnosiFileSystemSingleton {
     private static $instance = null;
     private $wpFilesystem;
     

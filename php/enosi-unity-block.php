@@ -1,17 +1,20 @@
 <?php
-require_once __DIR__ . '/utils.php';
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+require_once __DIR__ . '/enosi-utils.php';
 
 /**
 * Returns an array of strings to translate for the JS interface.
 */
 function wpunityGetTranslatableStrings(): array {
     return [
-        'buildChoose' => __('buildChoose', 'wp-unity-webgl'),
-        'buildSelectionne' => __('Build sélectionné', 'wp-unity-webgl'),
-        'warnExpectedRatio' => __("⚠️ Format attendu : nombre/nombre (ex: 4/3) \nSi le format est invalide, la valeur par défaut utilisée sera 4/3.", 'wp-unity-webgl'),
-        'showOptions' => __('Afficher les options', 'wp-unity-webgl'),
-        'showOnMobile' => __('Afficher sur mobile', 'wp-unity-webgl'),
-        'showLogs' => __('Afficher les logs dans la console', 'wp-unity-webgl')
+        'buildChoose' => __('Choose a unity build', 'enosi-embedder-unity') . ' : ',
+        'buildSelectionne' => __('Selected build', 'enosi-embedder-unity'),
+        'warnExpectedRatio' => '⚠️ ' . __("Expected format: number/number (4/3) \nIf the format is invalid, the default value will be 4/3.", 'enosi-embedder-unity'),
+        'showOptions' => __('Display options', 'enosi-embedder-unity'),
+        'showOnMobile' => __('Display game on mobile', 'enosi-embedder-unity'),
+        'showLogs' => __('Display logs in the console', 'enosi-embedder-unity')
     ];
 }
 
@@ -22,7 +25,7 @@ function unityEnqueueBlock(): void
 {
     // Register the editor JavaScript file
     wp_register_script(
-        'wpunity-unity-block',
+        'enosi-unity-block',
         plugins_url('../js/editor-unity-block.js', __FILE__),
         ['wp-blocks', 'wp-element', 'wp-editor', 'wp-i18n'],
         filemtime(plugin_dir_path(__FILE__) . '../js/editor-unity-block.js'),
@@ -30,18 +33,18 @@ function unityEnqueueBlock(): void
     );
     
     // Ajout des trad dans le script
-    wp_localize_script('wpunity-unity-block', 'WP_I18N', wpunityGetTranslatableStrings());
+    wp_localize_script('enosi-unity-block', 'WP_I18N', wpunityGetTranslatableStrings());
     
     // Pass global plugin data to JS
-    wp_localize_script('wpunity-unity-block', 'UnityWebGLData', [
+    wp_localize_script('enosi-unity-block', 'EnosiUnityData', [
         'urlAdmin' => admin_url('/admin.php'),
     ]);
     
     // Register the block type
     register_block_type('wpunity/unity-webgl', [
-        'editor_script' => 'wpunity-unity-block',
-        'editor_style' => 'wpunity-unity-block-style',
-        'style' => 'wpunity-unity-block-style',
+        'editor_script' => 'enosi-unity-block',
+        'editor_style' => 'enosi-unity-block-style',
+        'style' => 'enosi-unity-block-style',
     ]);
 }
 
@@ -58,8 +61,8 @@ function unityWebglLocalizeBuilds(): void
     $upload_dir = wp_upload_dir();
     $builds_dir = $upload_dir['basedir'] . '/unity_webgl';
     
-    $builds = Utils::listBuilds($builds_dir);
+    $builds = EnosiUtils::listBuilds($builds_dir);
     
-    wp_localize_script('wpunity-unity-block', 'unityBuildsData', ['builds' => $builds]);
+    wp_localize_script('enosi-unity-block', 'unityBuildsData', ['builds' => $builds]);
 }
 add_action('enqueue_block_editor_assets', 'unityWebglLocalizeBuilds');

@@ -23,7 +23,7 @@ const iconUnity = {
 };
 
 registerBlockType("mon-plugin/unity-webgl", {
-  title: "Unity WebGL", // Nom affiché du bloc
+  title: "Unity Embedder", // Nom affiché du bloc
   icon: iconUnity, // Icône personnalisée
   category: "embed", // Catégorie du bloc dans l’éditeur
   attributes: {
@@ -64,7 +64,7 @@ registerBlockType("mon-plugin/unity-webgl", {
         el(
           "a",
           {
-            href: UnityWebGLData.urlAdmin + "?page=unity_webgl_admin", // adapte l'URL si besoin
+            href: EnosiUnityData.urlAdmin + "?page=unity_webgl_admin", // adapte l'URL si besoin
             className: "button button-primary",
           },
           "Téléverser un build Unity"

@@ -9,7 +9,7 @@ class UnityInstanceManager {
     this.unityContainer = document.getElementById(uuid + "-container");
     this.config = null;
     this.unityInstance = null;
-    
+
     // Extract configuration values from the dataset of the canvas element
     this.canvasData = {
       buildUrl: this.unityCanvas.dataset.buildUrl,
@@ -20,18 +20,18 @@ class UnityInstanceManager {
       fixedHeight: parseInt(this.unityCanvas.dataset.fixedHeight, 10),
       aspectRatio: this.unityCanvas.dataset.aspectRatio,
     };
-    
+
     this.loader = new UnityLoader(this.unityContainer);
   }
-  
+
   /**
-  * Displays a banner (error/warning) in the errorDiv element.
-  */
+   * Displays a banner (error/warning) in the errorDiv element.
+   */
   showBanner(msg, type) {
     const div = document.createElement("div");
-    div.innerHTML = `${UnityWebGLData.admMessage} : ${msg}`;
+    div.innerHTML = `${EnosiUnityData.admMessage} : ${msg}`;
     div.style.padding = "10px";
-    
+
     // Helper to toggle error/canvas visibility
     const updateBannerVisibility = () => {
       const hasError = this.errorDiv.children.length > 0;
@@ -39,29 +39,29 @@ class UnityInstanceManager {
       this.unityCanvas.style.display = hasError ? "none" : "block";
       this.unityContainer.style.display = hasError ? "none" : "block";
     };
-    
+
     // Style and logic based on banner type
     switch (type) {
       case "error":
-      div.style.background = "darkred";
-      break;
+        div.style.background = "darkred";
+        break;
       case "warning":
-      if (!UnityWebGLData.currentUserIsAdmin) return;
-      div.style.background = "darkorange";
-      setTimeout(() => {
-        this.errorDiv.removeChild(div);
-        updateBannerVisibility();
-      }, 2000);
-      break;
+        if (!EnosiUnityData.currentUserIsAdmin) return;
+        div.style.background = "darkorange";
+        setTimeout(() => {
+          this.errorDiv.removeChild(div);
+          updateBannerVisibility();
+        }, 2000);
+        break;
     }
-    
+
     this.errorDiv.appendChild(div);
     updateBannerVisibility();
   }
-  
+
   /**
-  * Returns full paths to Unity build files based on build URL and loader name.
-  */
+   * Returns full paths to Unity build files based on build URL and loader name.
+   */
   getUnityBuildFiles(buildUrl, loaderName) {
     return {
       dataUrl: `${buildUrl}${loaderName}.data`,
@@ -70,11 +70,11 @@ class UnityInstanceManager {
       wasmUrl: `${buildUrl}${loaderName}.wasm`,
     };
   }
-  
+
   /**
-  * Reloads the Unity instance by quitting the current one (if any)
-  * and then loading it again with the same build configuration.
-  */
+   * Reloads the Unity instance by quitting the current one (if any)
+   * and then loading it again with the same build configuration.
+   */
   async reload() {
     console.log("reload");
     if (this.unityInstance) {
@@ -83,20 +83,20 @@ class UnityInstanceManager {
         // Reload Unity with current build info
         await this.load(this.canvasData.buildUrl, this.canvasData.loaderName);
       } catch (e) {
-        this.showBanner(`Reload failed: ${e.message}`, 'error');
+        this.showBanner(`Reload failed: ${e.message}`, "error");
       }
     } else {
       // If no instance exists, just load normally
       await this.load(this.canvasData.buildUrl, this.canvasData.loaderName);
     }
   }
-  
+
   /**
-  * Loads the Unity WebGL build dynamically.
-  */
+   * Loads the Unity WebGL build dynamically.
+   */
   async load(buildUrl, loaderName, configOverrides = {}) {
     const files = this.getUnityBuildFiles(buildUrl, loaderName);
-    
+
     this.config = {
       dataUrl: files.dataUrl,
       frameworkUrl: files.frameworkUrl,
@@ -106,21 +106,21 @@ class UnityInstanceManager {
       companyName: "EnosiStudio",
       productName: "EnosiStudio",
       productVersion: "1.0",
-      configOverrides
+      configOverrides,
       // showBanner: this.showBanner.bind(this),
       // ,...configOverrides,
     };
-    
+
     // Load the Unity loader script
     await this.loadScript(files.loaderUrl);
-    
+
     const originalLog = console.log;
     if (!this.canvasData.showLogs) {
       console.log = () => {}; // Suppress logs if disabled
     }
-    
+
     this.loader.show();
-    
+
     try {
       // Create Unity instance
       this.unityInstance = await createUnityInstance(
@@ -130,18 +130,18 @@ class UnityInstanceManager {
           this.loader.updateProgress(progress);
         }
       );
-      
+
       // Handle container size based on mode
       if (this.canvasData.sizeMode === "fixed-height") {
         this.unityContainer.style.height = this.canvasData.fixedHeight + "px";
       } else if (this.canvasData.sizeMode === "aspect-ratio") {
         this.unityContainer.style.aspectRatio = this.canvasData.aspectRatio;
       }
-      
+
       // Show optional toolbar if enabled
       if (this.canvasData.showOptions) {
         new UnityToolbar(this.unityCanvas, this.uuid, {
-          reload: () => this.reload()
+          reload: () => this.reload(),
         });
       }
     } catch (e) {
@@ -153,10 +153,10 @@ class UnityInstanceManager {
       }
     }
   }
-  
+
   /**
-  * Dynamically loads an external JS script.
-  */
+   * Dynamically loads an external JS script.
+   */
   loadScript(src) {
     return new Promise((resolve, reject) => {
       const script = document.createElement("script");
