@@ -47,7 +47,15 @@ add_action('admin_enqueue_scripts', fn() =>
 );
 
 // Filtre pour charger le script comme module
-add_filter('script_loader_tag', fn($tag,$handle)=>$handle==='unity-webgl'?str_replace('<script ','<script type="module" ',$tag):$tag,10,2);
+add_filter(
+    'script_loader_tag', // Hook WordPress qui permet de modifier le HTML généré pour un <script>
+    fn($tag, $handle) => // Fonction fléchée qui reçoit le tag HTML et le handle du script
+        $handle === 'enosi-embedder-unity' // Vérifie si le handle correspond à notre script
+            ? str_replace('<script ', '<script type="module" ', $tag) // Si oui, on remplace <script> par <script type="module">
+            : $tag, // Sinon, on retourne le tag original sans modification
+    10, // Priorité du filtre (10 par défaut)
+    2   // Nombre d’arguments passés à la fonction (ici $tag et $handle)
+);
 
 /**
  * Shortcode [unity_webgl build="mygame" showOptions="true" showOnMobile="false" showLogs="false" sizemode="fixed-height" fixedheight="500" aspectratio="4/3"]
@@ -88,12 +96,12 @@ function unity_webgl_shortcode($atts): string {
 
     $uuid = EnosiUtils::generateUuid();
 
-    if(!wp_script_is('unity-webgl','enqueued')){
+    if(!wp_script_is('enosi-embedder-unity','enqueued')){
         $script_file = plugin_dir_path(__FILE__).'js/client-unity-block.js';
-        wp_enqueue_script('unity-webgl',plugins_url('js/client-unity-block.js',__FILE__),[],filemtime($script_file),true);
+        wp_enqueue_script('enosi-embedder-unity',plugins_url('js/client-unity-block.js',__FILE__),[],filemtime($script_file),true);
     }
 
-    wp_localize_script('unity-webgl','EnosiUnityData',array_merge($args,[
+    wp_localize_script('enosi-embedder-unity','EnosiUnityData',array_merge($args,[
         'buildUrl'=>$build_url,'loaderName'=>basename($loader_file,'.loader.js'),
         'uuid'=>$uuid,'urlAdmin'=>admin_url('/wp-admin/admin.php'),
         'currentUserIsAdmin'=>current_user_can('administrator'),
