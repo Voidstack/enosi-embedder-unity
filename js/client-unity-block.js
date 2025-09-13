@@ -29,7 +29,7 @@ class UnityInstanceManager {
    */
   showBanner(msg, type) {
     const div = document.createElement("div");
-    div.innerHTML = `${EnosiUnityData.admMessage} : ${msg}`;
+    div.innerHTML = `${enosiShortcodeData.admMessage} : ${msg}`;
     div.style.padding = "10px";
 
     // Helper to toggle error/canvas visibility
@@ -46,7 +46,7 @@ class UnityInstanceManager {
         div.style.background = "darkred";
         break;
       case "warning":
-        if (!EnosiUnityData.currentUserIsAdmin) return;
+        if (!enosiShortcodeData.currentUserIsAdmin) return;
         div.style.background = "darkorange";
         setTimeout(() => {
           this.errorDiv.removeChild(div);

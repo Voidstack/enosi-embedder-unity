@@ -33,11 +33,11 @@ add_action('admin_menu', function (): void {
 
 // Add of main_admin.css for admin pages
 add_action('admin_enqueue_scripts', fn() =>
-    wp_enqueue_style(
-        'enosi-admin-page', 
-        plugins_url('../css/enosi-admin-page.css', __FILE__),
-        [],
-        filemtime(plugin_dir_path(__FILE__) . '../css/enosi-admin-page.css')
+wp_enqueue_style(
+    'enosi-admin-page',
+    plugins_url('../css/enosi-admin-page.css', __FILE__),
+    [],
+    filemtime(plugin_dir_path(__FILE__) . '../css/enosi-admin-page.css')
     )
 );
 
@@ -99,6 +99,15 @@ function enosi_unity_admin_page(): void
     
     // Delete all builds if requested.
     if (isset($_POST['delete_all_builds'])) {
+        if (!isset($_POST['delete_all_builds_nonce']) || 
+        !wp_verify_nonce($_POST['delete_all_builds_nonce'], 'delete_all_builds_action')) {
+            wp_die('Nonce verification failed. Please try again.');
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('You are not allowed to do this action.');
+        }
+        
         foreach ($builds as $build) {
             $path = $builds_dir . '/' . $build;
             EnosiUtils::deleteFolder($path);
@@ -138,6 +147,7 @@ function enosi_unity_admin_page(): void
     }else {
         echo '<form method="post" onsubmit="return confirm(\'❌ ' . esc_js(__('Delete ALL builds?', 'enosi-embedder-unity')) . '\');" style="margin-bottom: 16px;">';
         echo '<input type="hidden" name="delete_all_builds" value="1">';
+        wp_nonce_field('delete_all_builds_action', 'delete_all_builds_nonce');
         submit_button('🧨 ' . __('Delete all builds', 'enosi-embedder-unity'), 'delete');
         echo '</form>';
     }
@@ -165,14 +175,20 @@ function unityWebglAdminServerConfig(): void
                 if ( wp_verify_nonce( $nonce, 'add_wasm_mime_action' ) ) {
                     EnosiUtils::setupWasmMime();
                 }
-            }elseif (isset($_POST['del_wasm_mime'])) {
-                EnosiUtils::removeWasmMimeSetup();
+            }elseif (isset($_POST['del_wasm_mime'], $_POST['del_wasm_mime_nonce'])) {
+                $nonce = sanitize_text_field( wp_unslash( $_POST['del_wasm_mime_nonce'] ) );
+                if ( wp_verify_nonce( $nonce, 'del_wasm_mime_action' ) ) {
+                    EnosiUtils::removeWasmMimeSetup();
+                }
             }
             
             // Check htaccess pour le type MIME
             if(EnosiUtils::isWasmMimeConfigured()){
                 echo '<form method="post" style="display: flex; align-items: center; gap: 10px;">';
-                submit_button(__('Delete the MIME type for .wasm', 'enosi-embedder-unity'), 'primary', 'del_wasm_mime');
+                wp_nonce_field('del_wasm_mime_action', 'del_wasm_mime_nonce');
+                submit_button(__('Delete the MIME type for .wasm', 'enosi-embedder-unity'), 
+                'primary', 
+                'del_wasm_mime');
                 echo '<span style="color:green;">✅ ' . esc_html__('The MIME type for .wasm files is already configured in the .htaccess.', 'enosi-embedder-unity') . '</span>';
                 echo '</form>';
             }else{

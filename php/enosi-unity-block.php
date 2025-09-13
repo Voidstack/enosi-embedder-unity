@@ -9,7 +9,7 @@ require_once __DIR__ . '/enosi-utils.php';
 /**
 * Returns an array of strings to translate for the JS interface.
 */
-function wpunityGetTranslatableStrings(): array {
+function enosiGetTranslationStrings(): array {
     return [
         'buildChoose' => __('Choose a unity build', 'enosi-embedder-unity') . ' : ',
         'buildSelectionne' => __('Selected build', 'enosi-embedder-unity'),
@@ -23,7 +23,7 @@ function wpunityGetTranslatableStrings(): array {
 /**
 * Registers the Unity WebGL block and enqueues the necessary editor script.
 */
-function unityEnqueueBlock(): void
+function enosiEnqueueUnityBlock(): void
 {
     // Register the editor JavaScript file
     wp_register_script(
@@ -35,10 +35,10 @@ function unityEnqueueBlock(): void
     );
     
     // Ajout des trad dans le script
-    wp_localize_script('enosi-unity-block', 'WP_I18N', wpunityGetTranslatableStrings());
+    wp_localize_script('enosi-unity-block', 'enosiI18n', enosiGetTranslationStrings());
     
     // Pass global plugin data to JS
-    wp_localize_script('enosi-unity-block', 'EnosiUnityData', [
+    wp_localize_script('enosi-unity-block', 'enosiShortcodeData', [
         'urlAdmin' => admin_url('/admin.php'),
     ]);
     
@@ -51,14 +51,14 @@ function unityEnqueueBlock(): void
 }
 
 // enqueue_block_editor_assets ne s'exécute que dans l'éditeur de blocs (page/post avec Gutenberg).
-add_action('enqueue_block_editor_assets', 'unityEnqueueBlock');
+add_action('enqueue_block_editor_assets', 'enosiEnqueueUnityBlock');
 
 /*
 Cette fonction crée un tableau builds des dossiers présents dans uploads/unity_webgl.
 Elle le passe à JS sous le nom global unityBuildsData.
 JS peut ensuite lire unityBuildsData.builds pour afficher la liste.
 */
-function unityWebglLocalizeBuilds(): void
+function enosiLocalizeUnityBuilds(): void
 {
     $upload_dir = wp_upload_dir();
     $builds_dir = $upload_dir['basedir'] . '/unity_webgl';
@@ -67,4 +67,4 @@ function unityWebglLocalizeBuilds(): void
     
     wp_localize_script('enosi-unity-block', 'unityBuildsData', ['builds' => $builds]);
 }
-add_action('enqueue_block_editor_assets', 'unityWebglLocalizeBuilds');
+add_action('enqueue_block_editor_assets', 'enosiLocalizeUnityBuilds');

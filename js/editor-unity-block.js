@@ -64,7 +64,7 @@ registerBlockType("mon-plugin/unity-webgl", {
         el(
           "a",
           {
-            href: EnosiUnityData.urlAdmin + "?page=unity_webgl_admin", // adapte l'URL si besoin
+            href: enosiShortcodeData.urlAdmin + "?page=unity_webgl_admin", // adapte l'URL si besoin
             className: "button button-primary",
           },
           "Téléverser un build Unity"
@@ -85,14 +85,14 @@ registerBlockType("mon-plugin/unity-webgl", {
     const mainContent = el(
       "div",
       { style: { border: "1px solid grey", padding: "10px" } },
-      el("label", { htmlFor: "select-build" }, WP_I18N.buildChoose),
+      el("label", { htmlFor: "select-build" }, enosiI18n.buildChoose),
       el(
         "select",
         {
           id: "select-build",
           value: validSelectedBuild,
           onChange: (e) => setAttributes({ selectedBuild: e.target.value }),
-          "aria-label": WP_I18N.buildChoose,
+          "aria-label": enosiI18n.buildChoose,
         },
         el("option", { value: "" }, "-- Aucun --"),
         builds.map((build) => el("option", { key: build, value: build }, build))
@@ -101,7 +101,7 @@ registerBlockType("mon-plugin/unity-webgl", {
         el(
           "div",
           { style: { marginTop: "10px" } },
-          WP_I18N.buildSelectionne + `: ${validSelectedBuild}`
+          enosiI18n.buildSelectionne + `: ${validSelectedBuild}`
         )
     );
 
@@ -112,19 +112,19 @@ registerBlockType("mon-plugin/unity-webgl", {
         PanelBody,
         { title: "Options", initialOpen: true },
         el(CheckboxControl, {
-          label: WP_I18N.showOptions,
+          label: enosiI18n.showOptions,
           checked: showOptions,
           onChange: (value) => setAttributes({ showOptions: value }),
           __nextHasNoMarginBottom: true,
         }),
         el(CheckboxControl, {
-          label: WP_I18N.showOnMobile,
+          label: enosiI18n.showOnMobile,
           checked: showOnMobile,
           onChange: (value) => setAttributes({ showOnMobile: value }),
           __nextHasNoMarginBottom: true,
         }),
         el(CheckboxControl, {
-          label: WP_I18N.showLogs,
+          label: enosiI18n.showLogs,
           checked: showLogs,
           onChange: (value) => setAttributes({ showLogs: value }),
           __nextHasNoMarginBottom: true,
@@ -148,7 +148,7 @@ registerBlockType("mon-plugin/unity-webgl", {
               setAttributes({ aspectRatio: value });
             },
             help: !aspectRatioRegex.test(aspectRatio)
-              ? WP_I18N.warnExpectedRatio
+              ? enosiI18n.warnExpectedRatio
               : undefined,
             __nextHasNoMarginBottom: true,
             __next40pxDefaultSize: true,

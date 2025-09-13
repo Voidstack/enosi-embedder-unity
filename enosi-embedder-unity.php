@@ -37,32 +37,26 @@ wp_enqueue_style(
     )
 );
 
-// Add of main_admin.css for admin pages
-add_action('admin_enqueue_scripts', fn() =>
-wp_enqueue_style(
-    'enosi-admin-main-css',
-    plugins_url('css/enosi-main-admin.css', __FILE__),
-    [],
-    filemtime(plugin_dir_path(__FILE__) . 'css/enosi-main-admin.css')
-    )
-);
+// Enqueue the client script as a module
+add_action('wp_enqueue_scripts', function () {
+    $handle = 'enosi-embedder-unity';
+    $script_url = plugins_url('js/client-unity-block.js', __FILE__);
 
-// Filtre pour charger le script comme module
-add_filter(
-    'script_loader_tag', // Hook WordPress qui permet de modifier le HTML généré pour un <script>
-    fn($tag, $handle) => // Fonction fléchée qui reçoit le tag HTML et le handle du script
-    $handle === 'enosi-embedder-unity' // Vérifie si le handle correspond à notre script
-    ? str_replace('<script ', '<script type="module" ', $tag) // Si oui, on remplace <script> par <script type="module">
-    : $tag, // Sinon, on retourne le tag original sans modification
-    10, // Priorité du filtre (10 par défaut)
-    2   // Nombre d’arguments passés à la fonction (ici $tag et $handle)
-);
+    // Registers and enqueues a JS module (WordPress 6.5+)
+    wp_enqueue_script_module(
+        $handle,
+        $script_url,
+        [],
+        filemtime(plugin_dir_path(__FILE__) . 'js/client-unity-block.js')
+    );
+});
 
 /**
-* Shortcode [unity_webgl build="mygame" showOptions="true" showOnMobile="false" showLogs="false" sizemode="fixed-height" fixedheight="500" aspectratio="4/3"]
-*/
+ * Generates a container for a Unity WebGL build and enqueues the module script.
+ */
 function unity_webgl_shortcode($atts): string {
-    static $loader_cache=[];
+    static $loader_cache = []; // Cache to avoid checking the same build multiple times
+
     $a = shortcode_atts([
         'build'=>'','showoptions'=>'true','showonmobile'=>'false','showlogs'=>'false',
         'sizemode'=>'fixed-height','fixedheight'=>500,'aspectratio'=>'4/3'
@@ -97,14 +91,17 @@ function unity_webgl_shortcode($atts): string {
     
     $uuid = EnosiUtils::generateUuid();
     
-    if(!wp_script_is('enosi-embedder-unity','enqueued')){
-        $script_file = plugin_dir_path(__FILE__).'js/client-unity-block.js';
-        wp_enqueue_script('enosi-embedder-unity',plugins_url('js/client-unity-block.js',__FILE__),[],filemtime($script_file),true);
-    }
-    
-    wp_localize_script('enosi-embedder-unity','EnosiUnityData',array_merge($args,[
-        'buildUrl'=>$build_url,'loaderName'=>basename($loader_file,'.loader.js'),
-        'uuid'=>$uuid,'urlAdmin'=>admin_url('/wp-admin/admin.php'),
+    $handle = 'enosi-embedder-unity';
+
+    // Enqueue the module script (already registered above)
+    wp_enqueue_script_module($handle);
+
+    // Pass dynamic data to the JS module using wp_localize_script
+    wp_localize_script($handle, 'enosiShortcodeData', array_merge($args, [
+        'buildUrl' => $build_url,
+        'loaderName' => basename($loader_file, '.loader.js'),
+        'uuid' => $uuid,
+        'urlAdmin'=>admin_url('/wp-admin/admin.php'),
         'currentUserIsAdmin'=>current_user_can('administrator'),
         'admMessage'=>__('TempMsg','enosi-embedder-unity')
     ]));
@@ -124,4 +121,5 @@ function unity_webgl_shortcode($atts): string {
     </div>
     <?php return ob_get_clean();
 }
+// Register the shortcode
 add_shortcode('unity_webgl','unity_webgl_shortcode');
