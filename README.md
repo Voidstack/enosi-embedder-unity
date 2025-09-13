@@ -31,7 +31,7 @@ Showcase interactive Unity content directly on your site with just a few clicks.
 
 == Example ==
 
-[Live Example](https://enosistudio.com/unity-webgl-integrator-example/)
+[Live Example](https://enosistudio.com/enosi-embedder-unity/)
 
 == Requirements ==
 

@@ -1,6 +1,8 @@
 <?php
 
-defined('ABSPATH') or die;
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 
 require_once __DIR__ . '/enosi-utils.php';
 require_once __DIR__ . '/enosi-filesystem-singleton.php';

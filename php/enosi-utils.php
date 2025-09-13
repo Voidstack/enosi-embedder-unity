@@ -1,6 +1,8 @@
 <?php
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 
 require_once __DIR__ . '/enosi-filesystem-singleton.php';
 
@@ -10,22 +12,22 @@ class EnosiUtils {
     }
     
     /**
-     * Deletes a folder and its contents in a WordPress-friendly way.
-     * Uses EnosiFileSystemSingleton for directories and wp_delete_file for files.
-     *
-     * @param string $dir Path to the directory to delete.
-     * @return bool True on success, false on failure.
-     */
+    * Deletes a folder and its contents in a WordPress-friendly way.
+    * Uses EnosiFileSystemSingleton for directories and wp_delete_file for files.
+    *
+    * @param string $dir Path to the directory to delete.
+    * @return bool True on success, false on failure.
+    */
     public static function deleteFolder(string $dir): bool {
         if (!is_dir($dir)) {
             EnosiUtils::error(esc_html__( 'Not a valid directory', 'enosi-embedder-unity' ) . ' : ' . $dir);
             return false;
         }
-
+        
         $fs = EnosiFileSystemSingleton::getInstance();
         $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
         $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
-
+        
         foreach ($files as $file) {
             $path = $file->getRealPath();
             if ($file->isDir()) {
@@ -34,7 +36,7 @@ class EnosiUtils {
                 wp_delete_file($path);
             }
         }
-
+        
         $success = $fs->rmdir($dir, true);
         if (!$success) {
             EnosiUtils::error(esc_html__( 'Failed to delete directory', 'enosi-embedder-unity' ) . ' : ' . $dir);
@@ -189,7 +191,7 @@ class EnosiUtils {
             }
         }
     }
-
+    
     // Display an error message in the WordPress admin interface
     public static function error(string $message): void {
         echo "<p style='color:red;'>❌ " . esc_html__( 'Error: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
@@ -199,7 +201,7 @@ class EnosiUtils {
     public static function info(string $message): void {
         echo "<p style='color:black;'>ℹ️ " . esc_html__( 'Info: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
     }
-
+    
     // Display a validation message in the WordPress admin interface
     public static function valid(string $message): void {
         echo "<p style='color:green;'>✅ " . esc_html__( 'Success: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
