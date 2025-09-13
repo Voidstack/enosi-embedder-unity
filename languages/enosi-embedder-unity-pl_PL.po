@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WP Unity WebGL\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-04 18:21+0000\n"
-"PO-Revision-Date: 2025-09-13 13:16+0000\n"
+"PO-Revision-Date: 2025-09-13 14:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
@@ -16,17 +16,17 @@ msgstr ""
 "X-Loco-Version: 2.8.0; wp-6.8.2; php-8.2.27\n"
 "X-Domain: wpunity"
 
-#: php/enosi-admin-page.php:116
+#: php/enosi-admin-page.php:112
 msgid "All builds have been deleted."
 msgstr "Wszystkie kompilacje zostały usunięte."
 
-#: php/enosi-admin-page.php:207
+#: php/enosi-admin-page.php:198
 msgid "Any server configuration change requires a manual server restart."
 msgstr ""
 "Wszelkie zmiany konfiguracji serwera wymagają ręcznego ponownego "
 "uruchomienia serwera."
 
-#: php/enosi-admin-page.php:213 php/enosi-admin-page.php:219
+#: php/enosi-admin-page.php:204 php/enosi-admin-page.php:210
 msgid ""
 "Automatic detection and configuration of the MIME type for .wasm files is "
 "only supported on Apache servers."
@@ -42,21 +42,21 @@ msgstr "Menedżer kompilacji"
 msgid "Choose a unity build"
 msgstr "Wybierz kompilację Unity"
 
-#: php/enosi-admin-page.php:198
+#: php/enosi-admin-page.php:189
 msgid "Configure the MIME type for .wasm"
 msgstr "Skonfiguruj typ MIME dla pliku .wasm"
 
-#: php/enosi-admin-page.php:151
+#: php/enosi-admin-page.php:148
 #| msgid "🧨 Delete all builds"
 msgid "Delete all builds"
 msgstr "Usuń wszystkie kompilacje"
 
-#: php/enosi-admin-page.php:148
+#: php/enosi-admin-page.php:145
 #| msgid "❌ Delete ALL builds?"
 msgid "Delete ALL builds?"
 msgstr "Usunąć WSZYSTKIE kompilacje?"
 
-#: php/enosi-admin-page.php:189
+#: php/enosi-admin-page.php:180
 msgid "Delete the MIME type for .wasm"
 msgstr "Usuń typ MIME dla .wasm"
 
@@ -82,7 +82,7 @@ msgstr "Wyświetla grę Unity WebGL wewnątrz ramki iframe."
 msgid "ENOSI Embedder For Unity"
 msgstr "ENOSI Embedder For Unity"
 
-#: php/enosi-utils.php:197
+#: php/enosi-utils.php:219
 msgid "Error: "
 msgstr "Błąd:"
 
@@ -124,19 +124,15 @@ msgstr "https://enosistudio.com/"
 msgid "https://www.linkedin.com/in/baptiste-martin56/"
 msgstr "https://www.linkedin.com/in/baptiste-martin56/"
 
-#: php/enosi-admin-page.php:206
+#: php/enosi-admin-page.php:197
 msgid ""
 "In that case, the configuration must be done manually in the .htaccess file."
 msgstr ""
 "W takim przypadku konfigurację należy wykonać ręcznie w pliku .htaccess."
 
-#: php/enosi-utils.php:202
+#: php/enosi-utils.php:224
 msgid "Info: "
 msgstr "Informacje:"
-
-#: php/enosi-admin-page.php:239
-msgid "Insufficient permissions."
-msgstr "Niewystarczające uprawnienia."
 
 #. Author of the plugin
 msgid "MARTIN Baptiste / Voidstack"
@@ -146,17 +142,17 @@ msgstr "MARTIN Baptiste / Voidstack"
 msgid "Missing expected build files. "
 msgstr "Brak oczekiwanych plików kompilacji."
 
-#: php/enosi-admin-page.php:120
+#: php/enosi-admin-page.php:117
 msgid "Name"
 msgstr "Nazwa"
 
-#: php/enosi-admin-page.php:146
+#: php/enosi-admin-page.php:143
 msgid "No build found."
 msgstr "Nie znaleziono kompilacji."
 
-#: php/enosi-admin-page.php:251
-msgid "No file sent."
-msgstr "Nie wysłano pliku."
+#: php/enosi-admin-page.php:229
+msgid "No valid file uploaded."
+msgstr "No valid file uploaded."
 
 #: php/enosi-utils.php:23
 msgid "Not a valid directory"
@@ -166,25 +162,25 @@ msgstr "Nieprawidłowy katalog"
 msgid "Not available on mobile"
 msgstr "Not available on mobile"
 
-#: php/enosi-admin-page.php:279
-msgid "Only ZIP format MIME type is allowed."
-msgstr "Dozwolony jest tylko typ MIME w formacie ZIP."
+#: php/enosi-admin-page.php:245
+msgid "Only ZIP files are allowed."
+msgstr "Only ZIP files are allowed."
 
-#: php/enosi-admin-page.php:121
+#: php/enosi-admin-page.php:118
 msgid "Path"
 msgstr "Ścieżka"
 
-#: php/enosi-admin-page.php:136
+#: php/enosi-admin-page.php:133
 msgid "Permanently delete build:"
 msgstr "Trwałe usunięcie kompilacji:"
 
-#: php/enosi-admin-page.php:212
+#: php/enosi-admin-page.php:203
 msgid ""
 "Please configure the MIME type for .wasm files in your Nginx configuration."
 msgstr "Skonfiguruj typ MIME dla plików .wasm w konfiguracji Nginx."
 
 #. %s is the link to Enosi Studio
-#: php/enosi-admin-page.php:158
+#: php/enosi-admin-page.php:155
 #, php-format
 msgid "Plugin developed by %s."
 msgstr "Wtyczka opracowana przez %s."
@@ -193,21 +189,21 @@ msgstr "Wtyczka opracowana przez %s."
 msgid "Selected build"
 msgstr "Wybrana kompilacja"
 
-#: php/enosi-admin-page.php:172
+#: php/enosi-admin-page.php:169
 msgid "Server configuration: Apache detected."
 msgstr "Konfiguracja serwera: wykryto Apache."
 
-#: php/enosi-admin-page.php:211
+#: php/enosi-admin-page.php:202
 msgid "Server configuration: Nginx detected."
 msgstr "Konfiguracja serwera: wykryto Nginx."
 
 #. %s is the detected server configuration type.
-#: php/enosi-admin-page.php:218
+#: php/enosi-admin-page.php:209
 #, php-format
 msgid "Server configuration: unknown(%s) detected."
 msgstr "Konfiguracja serwera: wykryto nieznaną (%s)."
 
-#: php/enosi-admin-page.php:122
+#: php/enosi-admin-page.php:119
 msgid "Size (MB)"
 msgstr "Rozmiar (MB)"
 
@@ -215,7 +211,7 @@ msgstr "Rozmiar (MB)"
 msgid "Starting extraction"
 msgstr "Rozpoczęcie ekstrakcji"
 
-#: php/enosi-utils.php:207
+#: php/enosi-utils.php:229
 msgid "Success: "
 msgstr "Sukces:"
 
@@ -223,24 +219,20 @@ msgstr "Sukces:"
 msgid "TempMsg"
 msgstr "TempMsg"
 
-#: php/enosi-admin-page.php:244
-msgid "Temporary file missing."
-msgstr "Brak pliku tymczasowego."
-
 #: php/enosi-build-extractor.php:75
 msgid "The .zip file MUST have the same name as the files it contains."
 msgstr "Plik .zip MUSI mieć taką samą nazwę jak pliki, które zawiera."
 
-#: php/enosi-admin-page.php:205
+#: php/enosi-admin-page.php:196
 msgid "The attempt to add or remove may fail for security reasons."
 msgstr ""
 "Próba dodania lub usunięcia może się nie powieść ze względów bezpieczeństwa."
 
-#: php/enosi-admin-page.php:192
+#: php/enosi-admin-page.php:183
 msgid "The MIME type for .wasm files is already configured in the .htaccess."
 msgstr "Typ MIME dla plików .wasm jest już skonfigurowany w pliku .htaccess."
 
-#: php/enosi-admin-page.php:202
+#: php/enosi-admin-page.php:193
 msgid ""
 "The MIME type for .wasm files is not configured in the .htaccess. A warning "
 "will be shown in the console at each build launch."
@@ -248,24 +240,17 @@ msgstr ""
 "Typ MIME dla plików .wasm nie jest skonfigurowany w pliku .htaccess. Przy "
 "każdym uruchomieniu kompilacji w konsoli będzie wyświetlane ostrzeżenie."
 
-#: php/enosi-admin-page.php:319
-msgid "Unable to create target directory: "
-msgstr "Nie można utworzyć katalogu docelowego:"
-
 #: php/enosi-build-extractor.php:42
 msgid "Unable to create temporary extraction folder."
 msgstr "Nie można utworzyć tymczasowego folderu ekstrakcji."
 
-#: php/enosi-admin-page.php:299
+#: php/enosi-admin-page.php:261
 msgid "Unable to create the unity_webgl folder."
 msgstr "Nie można utworzyć folderu unity_webgl."
 
-#: php/enosi-admin-page.php:313
-msgid "Unable to delete the previous build at: "
-msgstr "Nie można usunąć poprzedniej kompilacji w:"
-
-#: php/enosi-admin-page.php:305
-msgid "Unable to initialize the WordPress filesystem."
+#: php/enosi-admin-page.php:267
+#| msgid "Unable to initialize the WordPress filesystem."
+msgid "Unable to initialize WordPress filesystem."
 msgstr "Nie można zainicjować systemu plików WordPress."
 
 #. %s is the path to the zip file that couldn't be opened.
@@ -274,8 +259,14 @@ msgstr "Nie można zainicjować systemu plików WordPress."
 msgid "Unable to open the .zip file (%s)"
 msgstr "Nie można otworzyć pliku .zip (%s)"
 
-#: php/enosi-admin-page.php:287
-msgid "Unable to retrieve the WordPress upload directory."
+#: php/enosi-admin-page.php:276
+#| msgid "Unable to create target directory: "
+msgid "Unable to prepare target directory: "
+msgstr "Nie można utworzyć katalogu docelowego:"
+
+#: php/enosi-admin-page.php:252
+#| msgid "Unable to retrieve the WordPress upload directory."
+msgid "Unable to retrieve the upload directory."
 msgstr "Nie można znaleźć folderu przesyłania WordPress."
 
 #: enosi-embedder-unity.php:83
@@ -285,11 +276,6 @@ msgstr "Unity build not found:"
 #: php/enosi-admin-page.php:73
 msgid "Upload and Extract"
 msgstr "Prześlij i rozpakuj"
-
-#. %d is the upload error code
-#: php/enosi-admin-page.php:257
-msgid "Upload failed, error code: %d"
-msgstr "Nie udało się przesłać, kod błędu: %d"
 
 #: php/enosi-admin-page.php:67
 msgid "Use this page to add your Unity project by uploading the"

@@ -86,10 +86,14 @@ function enosi_unity_admin_page(): void
     }
     
     // Supprimer un build si demandé
-    if (EnosiUtils::isPostActionValid('delete_build', 'delete_build_nonce', 'delete_build_action')) {    
-        $build_to_delete = basename(sanitize_text_field(wp_unslash($_POST['build_name'])));
-        $full_path = $builds_dir . '/' . $build_to_delete;
-        EnosiUtils::deleteFolder($full_path);
+    if (EnosiUtils::isPostActionValid('delete_build', 'delete_build_nonce', 'delete_build_action')) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        if(isset($_POST['build_name'])){
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            $build_to_delete = basename(sanitize_text_field(wp_unslash($_POST['build_name'])));
+            $full_path = $builds_dir . '/' . $build_to_delete;
+            EnosiUtils::deleteFolder($full_path);
+        }
     }
     
     $builds = EnosiUtils::listBuilds($builds_dir);
@@ -209,116 +213,83 @@ function unityWebglAdminServerConfig(): void
     echo "</div>";
 }
 
-// Méthod de téléversement d'un projet unity .zip
+// Handles the upload of a Unity WebGL project ZIP file
 function unityWebglHandleUpload(): void
 {
-    if (!EnosiUtils::isPostNonceValid('upload_unity_zip_nonce', 'upload_unity_zip_action')) {
-        return; // nonce absent ou invalide
-    }
-    
-    if ( ! isset($_FILES['unity_zip']) ) {
-        return; // fichier non envoyé, on arrête
-    }
-    
-    // Problème de permission
-    if (!current_user_can('manage_options')) {
-        EnosiUtils::error(__('Insufficient permissions.', 'enosi-embedder-unity'));
+    // Verify nonce and user permissions
+    if (!EnosiUtils::isPostNonceValid('upload_unity_zip_nonce', 'upload_unity_zip_action') 
+        || !current_user_can('manage_options')) {
         return;
     }
     
-    if ( ! isset($_FILES['unity_zip']['tmp_name']) || empty($_FILES['unity_zip']['tmp_name']) ) {
-        EnosiUtils::error(__('Temporary file missing.', 'enosi-embedder-unity'));
+    // Retrieve uploaded file info
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+    $file = $_FILES['unity_zip'] ?? null;
+    if (!$file || empty($file['tmp_name']) || ($file['error'] ?? 1) !== UPLOAD_ERR_OK) {
+        EnosiUtils::error(__('No valid file uploaded.', 'enosi-embedder-unity'));
         return;
     }
     
-    // Le transfert est vide ou erreur autre
-    // Le transfert est vide ou erreur autre
-    if ( empty($_FILES['unity_zip']) ) {
-        EnosiUtils::error(__('No file sent.', 'enosi-embedder-unity'));
-        return;
-    } elseif ( ! isset($_FILES['unity_zip']['error']) || $_FILES['unity_zip']['error'] !== UPLOAD_ERR_OK ) {
-        $error_code = isset($_FILES['unity_zip']['error']) ? intval($_FILES['unity_zip']['error']) : 0;
-        EnosiUtils::error(
-            /* translators: %d is the upload error code */
-            sprintf(__('Upload failed, error code: %d', 'enosi-embedder-unity'), $error_code)
-        );
-        return;
-    }
+    $tmpName = $file['tmp_name'];
+    $originalName = $file['name'];
+    $buildName = pathinfo($originalName, PATHINFO_FILENAME);
+    $buildNameLower = strtolower($buildName);
     
-    // Vérification du type MIME.
+    // Validate MIME type and file extension
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    
-    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-    $mime = finfo_file($finfo, $_FILES['unity_zip']['tmp_name']);
+    $mime = finfo_file($finfo, $tmpName);
     finfo_close($finfo);
-    if ($mime !== 'application/zip') {
-        EnosiUtils::error("seul le format ZIP est autorisé.");
+    
+    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    if ($mime !== 'application/zip' || $ext !== 'zip') {
+        EnosiUtils::error(__('Only ZIP files are allowed.', 'enosi-embedder-unity'));
         return;
     }
     
-    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-    $file = $_FILES['unity_zip'];
-    
-    // Check si l'extension est bien .zip ou .ZIP
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    if (strtolower($ext) !== 'zip') {
-        EnosiUtils::error(__('Only ZIP format MIME type is allowed.', 'enosi-embedder-unity'));
+    // Prepare target directories
+    $uploadDir = wp_upload_dir();
+    if (empty($uploadDir['basedir'])) {
+        EnosiUtils::error(__('Unable to retrieve the upload directory.', 'enosi-embedder-unity'));
         return;
     }
     
-    $upload_dir = wp_upload_dir();
+    $unityWebFolder = $uploadDir['basedir'] . '/unity_webgl/';
+    $targetDir = $unityWebFolder . sanitize_title($buildName);
     
-    // Check si wordpress renvoi bien le upload directory.
-    if (!is_array($upload_dir) || empty($upload_dir['basedir'])) {
-        EnosiUtils::error(__('Unable to retrieve the WordPress upload directory.', 'enosi-embedder-unity'));
-        return;
-    }
-    
-    $build_name = pathinfo($file['name'], PATHINFO_FILENAME);
-    
-    $unityWebFolderName = '/unity_webgl/';
-    
-    $target_dir = $upload_dir['basedir'] . $unityWebFolderName . sanitize_title($build_name);
-    
-    // Vérifie si le dossier unity_webgl existe, sinon le crée
-    if (!file_exists($upload_dir['basedir'] . $unityWebFolderName) && !wp_mkdir_p($upload_dir['basedir'] . $unityWebFolderName)) {
+    // Ensure the main Unity WebGL folder exists
+    if (!file_exists($unityWebFolder) && !wp_mkdir_p($unityWebFolder)) {
         EnosiUtils::error(__('Unable to create the unity_webgl folder.', 'enosi-embedder-unity'));
         return;
     }
     
-    // Initialise le système de fichiers WordPress
-    if(!EnosiFileSystemSingleton::getInstance()->getWpFilesystem()){
-        EnosiUtils::error(__('Unable to initialize the WordPress filesystem.', 'enosi-embedder-unity'));
+    // Initialize the WordPress filesystem
+    if (!EnosiFileSystemSingleton::getInstance()->getWpFilesystem()) {
+        EnosiUtils::error(__('Unable to initialize WordPress filesystem.', 'enosi-embedder-unity'));
         return;
     }
     
     global $wp_filesystem;
     
-    // Vérifie si le dossier cible existe déjà et le supprime si nécessaire
-    if (file_exists($target_dir) && is_dir($target_dir) && !$wp_filesystem->delete($target_dir, true)) {
-        EnosiUtils::error(__('Unable to delete the previous build at: ', 'enosi-embedder-unity') . $target_dir);
+    // Delete any existing build folder and prepare the target directory
+    if ((file_exists($targetDir) && !$wp_filesystem->delete($targetDir, true)) 
+        || (!$wp_filesystem->is_dir($targetDir) && !wp_mkdir_p($targetDir))) {
+        EnosiUtils::error(__('Unable to prepare target directory: ', 'enosi-embedder-unity') . $targetDir);
         return;
     }
     
-    // Crée le dossier cible s'il n'existe pas
-    if (!$wp_filesystem->is_dir($target_dir) && !wp_mkdir_p($target_dir)) {
-        EnosiUtils::error(__('Unable to create target directory: ', 'enosi-embedder-unity') . $target_dir);
-        return;
-    }
-    
-    $build_name_lower = strtolower($build_name);
-    
-    $extractor = new EnosiBuildExtractor($file['tmp_name'], $target_dir, [
-        $build_name_lower.'.data',
-        $build_name_lower.'.wasm',
-        $build_name_lower.'.framework.js',
-        $build_name_lower.'.loader.js'
+    // Extract the required Unity build files
+    $extractor = new EnosiBuildExtractor($tmpName, $targetDir, [
+        $buildNameLower . '.data',
+        $buildNameLower . '.wasm',
+        $buildNameLower . '.framework.js',
+        $buildNameLower . '.loader.js'
     ]);
     
     if ($extractor->extract()) {
         echo '<p style="color:green;">✅ Success: Build extracted and validated.</p>';
-    }else{
-        EnosiUtils::deleteFolder($target_dir);
+    } else {
+        // Clean up target folder if extraction fails
+        EnosiUtils::deleteFolder($targetDir);
     }
 }
 ?>
