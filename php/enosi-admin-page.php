@@ -86,24 +86,16 @@ function enosi_unity_admin_page(): void
     }
     
     // Supprimer un build si demandé
-    if ( ! empty($_POST['delete_build']) && ! empty($_POST['build_name']) && ! empty($_POST['delete_build_nonce']) ) {
-        $nonce = sanitize_text_field( wp_unslash( $_POST['delete_build_nonce'] ) );
-        if ( wp_verify_nonce( $nonce, 'delete_build_action' ) ) {
-            $build_to_delete = basename( sanitize_text_field( wp_unslash( $_POST['build_name'] ) ) );
-            $full_path = $builds_dir . '/' . $build_to_delete;
-            EnosiUtils::deleteFolder( $full_path );
-        }
+    if (EnosiUtils::isPostActionValid('delete_build', 'delete_build_nonce', 'delete_build_action')) {    
+        $build_to_delete = basename(sanitize_text_field(wp_unslash($_POST['build_name'])));
+        $full_path = $builds_dir . '/' . $build_to_delete;
+        EnosiUtils::deleteFolder($full_path);
     }
     
     $builds = EnosiUtils::listBuilds($builds_dir);
     
     // Delete all builds if requested.
-    if (isset($_POST['delete_all_builds'])) {
-        if (!isset($_POST['delete_all_builds_nonce']) || 
-        !wp_verify_nonce($_POST['delete_all_builds_nonce'], 'delete_all_builds_action')) {
-            wp_die('Nonce verification failed. Please try again.');
-        }
-        
+    if (EnosiUtils::isPostActionValid('delete_all_builds', 'delete_all_builds_nonce', 'delete_all_builds_action')) {        
         if (!current_user_can('manage_options')) {
             wp_die('You are not allowed to do this action.');
         }
@@ -115,6 +107,7 @@ function enosi_unity_admin_page(): void
         $builds = EnosiUtils::listBuilds($builds_dir);
         echo '<div class="notice notice-success"><p>' . esc_html__('All builds have been deleted.', 'enosi-embedder-unity') . '</p></div>';
     }
+    
     echo '<table style="width: 100%; border-collapse: collapse;">';
     echo '<tr>
     <th style="text-align:left; border-bottom: 1px solid #ccc;">' . esc_html__('Name', 'enosi-embedder-unity') . '</th>
@@ -170,16 +163,10 @@ function unityWebglAdminServerConfig(): void
     switch($serverType) {
         case 'apache': {
             echo '<h2>' . esc_html__( 'Server configuration: Apache detected.', 'enosi-embedder-unity' ) . '</h2>';
-            if ( isset($_POST['add_wasm_mime'], $_POST['add_wasm_mime_nonce']) ) {
-                $nonce = sanitize_text_field( wp_unslash( $_POST['add_wasm_mime_nonce'] ) );
-                if ( wp_verify_nonce( $nonce, 'add_wasm_mime_action' ) ) {
-                    EnosiUtils::setupWasmMime();
-                }
-            }elseif (isset($_POST['del_wasm_mime'], $_POST['del_wasm_mime_nonce'])) {
-                $nonce = sanitize_text_field( wp_unslash( $_POST['del_wasm_mime_nonce'] ) );
-                if ( wp_verify_nonce( $nonce, 'del_wasm_mime_action' ) ) {
-                    EnosiUtils::removeWasmMimeSetup();
-                }
+            if (EnosiUtils::isPostActionValid('add_wasm_mime', 'add_wasm_mime_nonce', 'add_wasm_mime_action')) {
+                EnosiUtils::setupWasmMime();
+            } elseif (EnosiUtils::isPostActionValid('del_wasm_mime', 'del_wasm_mime_nonce', 'del_wasm_mime_action')) {
+                EnosiUtils::removeWasmMimeSetup();
             }
             
             // Check htaccess pour le type MIME
@@ -225,9 +212,8 @@ function unityWebglAdminServerConfig(): void
 // Méthod de téléversement d'un projet unity .zip
 function unityWebglHandleUpload(): void
 {
-    // Check si le fichier existe
-    if ( ! isset($_POST['upload_unity_zip_nonce']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['upload_unity_zip_nonce'] ) ), 'upload_unity_zip_action' ) ) {
-        return; // nonce absent ou invalide, on arrête
+    if (!EnosiUtils::isPostNonceValid('upload_unity_zip_nonce', 'upload_unity_zip_action')) {
+        return; // nonce absent ou invalide
     }
     
     if ( ! isset($_FILES['unity_zip']) ) {

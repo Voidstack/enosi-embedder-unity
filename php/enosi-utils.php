@@ -48,6 +48,28 @@ class EnosiUtils {
         return implode(', ', $arr);
     }
     
+    /**
+     * Sanitizes and validates a POST nonce.
+     * @param string $nonceKey The key in the $_POST array containing the nonce.
+     * @param string $action The action name used to create the nonce.
+     * @return bool True if the nonce is valid, false otherwise.
+     */
+    public static function isPostNonceValid(string $nonceKey, string $action): bool {
+        return !empty($_POST[$nonceKey])
+        && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$nonceKey])), $action);
+    }
+    
+    /**
+    * Sanitizes and validates a POST action using a nonce.
+    * @param string $postKey The key in the $_POST array to check.
+    * @param string $nonceKey The key in the $_POST array containing the nonce.
+    * @param string $action The action name used to create the nonce.
+    * @return bool True if the action is valid, false otherwise.
+    */
+    public static function isPostActionValid(string $postKey, string $nonceKey, string $action): bool {
+        return !empty($_POST[$postKey]) && !empty($_POST[$nonceKey])
+        && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$nonceKey])), $action);
+    }
     
     // Returns the list of subfolders present in $builds_dir.
     public static function listBuilds($builds_dir) {
