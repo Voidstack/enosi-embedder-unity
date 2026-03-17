@@ -1,3 +1,105 @@
+/* Admin header */
+.enosi-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.enosi-admin-header-brand {
+    display: flex;
+    align-items: center;
+}
+
+.enosi-admin-logo {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+}
+
+.enosi-admin-title {
+    font-size: 18px;
+    color: #333;
+    margin-right: 20px;
+}
+
+.enosi-admin-support-link {
+    text-decoration: none;
+    font-size: 16px;
+    color: #0073aa;
+    white-space: nowrap;
+}
+
+/* Builds table */
+.enosi-builds-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.enosi-builds-table th {
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.enosi-builds-table td {
+    padding: 8px 0;
+}
+
+.enosi-builds-table .col-size {
+    padding: 8px;
+    text-align: right;
+}
+
+.enosi-builds-table .col-action {
+    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+/* Forms */
+.enosi-delete-form {
+    margin: 0;
+}
+
+.enosi-delete-all-form {
+    margin-bottom: 16px;
+}
+
+/* Error GIFs */
+.enosi-error-gifs {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.enosi-error-gifs img {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 50%;
+    height: auto;
+}
+
+/* WASM config */
+.enosi-wasm-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.enosi-wasm-ok {
+    color: green;
+}
+
+.enosi-wasm-warn {
+    color: orange;
+}
+
 form[enctype="multipart/form-data"] {
     display: flex !important;
     align-items: center !important;

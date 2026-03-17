@@ -105,8 +105,8 @@ class EnosiUtils {
     // Detects the web server used (Apache or Nginx).
     public static function detectServer(): string { $serverSoftware = isset($_SERVER['SERVER_SOFTWARE'])? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'])): '';
         
-        $serverSoftware = sanitize_text_field($serverSoftware); 
-        
+        $serverSoftware = sanitize_text_field($serverSoftware);
+
         if (stripos($serverSoftware, 'apache') !== false) {
             return 'apache';
         }
@@ -214,6 +214,17 @@ class EnosiUtils {
         }
     }
     
+    // Returns the HTML block showing both guide GIFs side by side
+    public static function errorGifsHtml(): string {
+        $format_url   = plugins_url('../res/unity_format.gif', __FILE__);
+        $buildname_url = plugins_url('../res/build_name.gif', __FILE__);
+        return '<div class="enosi-error-gifs">' .
+            '<img src="' . esc_url($format_url) . '" alt="' . esc_attr__('Unity WebGL format guide', 'enosi-embedder-unity') . '">' .
+            '<img src="' . esc_url($buildname_url) . '" alt="' . esc_attr__('Build naming guide', 'enosi-embedder-unity') . '">' .
+            '</div>' .
+            '<a href="https://enosistudio.com/enosi-embedder-unity/" target="_blank" rel="noopener noreferrer">' . esc_html__('See the tutorial', 'enosi-embedder-unity') . '</a>';
+    }
+
     // Display an error message in the WordPress admin interface
     public static function error(string $message): void {
         echo "<p style='color:red;'>❌ " . esc_html__( 'Error: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";

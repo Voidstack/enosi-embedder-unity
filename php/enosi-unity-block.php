@@ -14,9 +14,16 @@ function enosiGetTranslationStrings(): array {
         'buildChoose' => __('Choose a unity build', 'enosi-embedder-unity') . ' : ',
         'buildSelectionne' => __('Selected build', 'enosi-embedder-unity'),
         'warnExpectedRatio' => '⚠️ ' . __("Expected format: number/number (4/3) \nIf the format is invalid, the default value will be 4/3.", 'enosi-embedder-unity'),
-        'showOptions' => __('Display options', 'enosi-embedder-unity'),
-        'showOnMobile' => __('Display game on mobile', 'enosi-embedder-unity'),
-        'showLogs' => __('Display logs in the console', 'enosi-embedder-unity')
+        'showToolbar'     => __('Show toolbar', 'enosi-embedder-unity'),
+        'showOnMobile'    => __('Display on mobile', 'enosi-embedder-unity'),
+        'showLogs'        => __('Display logs in the console', 'enosi-embedder-unity'),
+        'panelDimensions' => __('Dimensions', 'enosi-embedder-unity'),
+        'panelOptions'    => __('Options', 'enosi-embedder-unity'),
+        'panelDeveloper'  => __('Developer', 'enosi-embedder-unity'),
+        'dimensionsHelp'  => __('Fill both fields for a fixed size. Aspect ratio alone gives a responsive layout.', 'enosi-embedder-unity'),
+        'noBuildsFound'   => __('No Unity build found.', 'enosi-embedder-unity'),
+        'uploadBuild'     => __('Upload a Unity build', 'enosi-embedder-unity'),
+        'urlAdmin'        => admin_url('/admin.php'),
     ];
 }
 
@@ -36,11 +43,6 @@ function enosiEnqueueUnityBlock(): void
     
     // Ajout des trad dans le script
     wp_localize_script('enosi-unity-block', 'enosiI18n', enosiGetTranslationStrings());
-    
-    // Pass global plugin data to JS
-    wp_localize_script('enosi-unity-block', 'enosiShortcodeData', [
-        'urlAdmin' => admin_url('/admin.php'),
-    ]);
     
     // Register the block type
     register_block_type('wpunity/unity-webgl', [

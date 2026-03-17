@@ -18,6 +18,52 @@ require_once __DIR__ . '/enosi-build-extractor.php';
 
 const STR_TITLE = "Unity Embedder";
 
+// Handle build ZIP download
+add_action('admin_post_download_unity_build', 'enosiDownloadUnityBuild');
+
+function enosiDownloadUnityBuild(): void {
+    if (
+        !isset($_GET['_wpnonce'])
+        || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'download_unity_build')
+        || !current_user_can('manage_options')
+    ) {
+        wp_die('Unauthorized');
+    }
+
+    $build_name = isset($_GET['build']) ? sanitize_title(wp_unslash($_GET['build'])) : '';
+    $upload_dir = wp_upload_dir();
+    $build_path = $upload_dir['basedir'] . '/unity_webgl/' . $build_name;
+
+    if (empty($build_name) || !is_dir($build_path)) {
+        wp_die(esc_html__('Build not found.', 'enosi-embedder-unity'));
+    }
+
+    $tmp_zip = sys_get_temp_dir() . '/' . $build_name . '_' . wp_generate_password(8, false) . '.zip';
+    $zip = new ZipArchive();
+
+    if ($zip->open($tmp_zip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+        wp_die(esc_html__('Could not create ZIP file.', 'enosi-embedder-unity'));
+    }
+
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($build_path, RecursiveDirectoryIterator::SKIP_DOTS)
+    );
+    foreach ($files as $file) {
+        $file_path  = $file->getRealPath();
+        $relative   = $build_name . '/' . substr($file_path, strlen($build_path) + 1);
+        $zip->addFile($file_path, $relative);
+    }
+    $zip->close();
+
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . $build_name . '.zip"');
+    header('Content-Length: ' . filesize($tmp_zip));
+    header('Pragma: no-cache');
+    readfile($tmp_zip);
+    unlink($tmp_zip);
+    exit;
+}
+
 // Fonction WORDPRESS pour l'ajout de l'extention
 add_action('admin_menu', function (): void {
     add_menu_page(
@@ -46,12 +92,12 @@ function enosi_unity_admin_page(): void
 {
     ?>
     <div class="wrap">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
-    <div style="display: flex; align-items: center;">
-    <img style="width: 32px; height: 32px; margin-right: 10px;" src="<?php echo esc_url( plugins_url('../res/unity_icon.svg', __FILE__) ); ?>" alt="Logo" class="logo" />
-    <span style="font-size: 18px; color: #333; margin-right: 20px;">Embedder For Unity</span>
+    <div class="enosi-admin-header">
+    <div class="enosi-admin-header-brand">
+    <img class="enosi-admin-logo" src="<?php echo esc_url( plugins_url('../res/unity_icon.svg', __FILE__) ); ?>" alt="Logo" />
+    <span class="enosi-admin-title">Embedder For Unity</span>
     </div>
-    <a href="https://coff.ee/EnosiStudio" target="_blank" style="text-decoration: none; font-size: 16px; color: #0073aa; white-space: nowrap;">
+    <a href="https://coff.ee/EnosiStudio" target="_blank" class="enosi-admin-support-link">
     ☕ Support me
     </a>
     </div>
@@ -112,12 +158,12 @@ function enosi_unity_admin_page(): void
         echo '<div class="notice notice-success"><p>' . esc_html__('All builds have been deleted.', 'enosi-embedder-unity') . '</p></div>';
     }
     
-    echo '<table style="width: 100%; border-collapse: collapse;">';
+    echo '<table class="enosi-builds-table">';
     echo '<tr>
-    <th style="text-align:left; border-bottom: 1px solid #ccc;">' . esc_html__('Name', 'enosi-embedder-unity') . '</th>
-    <th style="text-align:left; border-bottom: 1px solid #ccc;">' . esc_html__('Path', 'enosi-embedder-unity') . '</th>
-    <th style="text-align:center; border-bottom: 1px solid #ccc;">' . esc_html__('Size (MB)', 'enosi-embedder-unity') . '</th>
-    <th style="text-align:right; border-bottom: 1px solid #ccc;"></th>
+    <th>' . esc_html__('Name', 'enosi-embedder-unity') . '</th>
+    <th>' . esc_html__('Path', 'enosi-embedder-unity') . '</th>
+    <th>' . esc_html__('Size (MB)', 'enosi-embedder-unity') . '</th>
+    <th></th>
 </tr>';
     
     foreach ($builds as $build) {
@@ -126,11 +172,16 @@ function enosi_unity_admin_page(): void
         $size_mb = round($size_bytes / 1048576, 2);
         
         echo '<tr>';
-        echo '<td style="padding: 8px 0;">' . esc_html($build) . '</td>';
-        echo '<td style="padding: 8px 0;">' . esc_html($build_path) . '</td>';
-        echo '<td style="padding: 8px 8px; text-align:right;">' . esc_html( $size_mb) . '</td>';
-        echo '<td style="padding: 8px 0; text-align:right;">';
-        echo '<form method="post" onsubmit="return confirm(\'❌ ' . esc_html__('Permanently delete build:', 'enosi-embedder-unity') . ' ' . esc_js($build) . ' ?\');" style="margin:0;">';
+        echo '<td>' . esc_html($build) . '</td>';
+        echo '<td>' . esc_html($build_path) . '</td>';
+        echo '<td class="col-size">' . esc_html( $size_mb) . '</td>';
+        $download_url = wp_nonce_url(
+            admin_url('admin-post.php?action=download_unity_build&build=' . urlencode($build)),
+            'download_unity_build'
+        );
+        echo '<td class="col-action">';
+        echo '<a href="' . esc_url($download_url) . '" class="button enosi-download-btn">' . esc_html__('Download', 'enosi-embedder-unity') . '</a>';
+        echo '<form method="post" onsubmit="return confirm(\'❌ ' . esc_html__('Permanently delete build:', 'enosi-embedder-unity') . ' ' . esc_js($build) . ' ?\');" class="enosi-delete-form">';
         echo '<input type="hidden" name="build_name" value="' . esc_attr($build) . '">';
         wp_nonce_field('delete_build_action', 'delete_build_nonce');
         submit_button('Delete', 'delete', 'delete_build', false);
@@ -142,7 +193,7 @@ function enosi_unity_admin_page(): void
     if (empty($builds)) {
         echo '<p>' . esc_html__('No build found.', 'enosi-embedder-unity') . '</p>';
     }else {
-        echo '<form method="post" onsubmit="return confirm(\'❌ ' . esc_js(__('Delete ALL builds?', 'enosi-embedder-unity')) . '\');" style="margin-bottom: 16px;">';
+        echo '<form method="post" onsubmit="return confirm(\'❌ ' . esc_js(__('Delete ALL builds?', 'enosi-embedder-unity')) . '\');" class="enosi-delete-all-form">';
         echo '<input type="hidden" name="delete_all_builds" value="1">';
         wp_nonce_field('delete_all_builds_action', 'delete_all_builds_nonce');
         submit_button('🧨 ' . __('Delete all builds', 'enosi-embedder-unity'), 'delete');
@@ -175,22 +226,22 @@ function unityWebglAdminServerConfig(): void
             
             // Check htaccess pour le type MIME
             if(EnosiUtils::isWasmMimeConfigured()){
-                echo '<form method="post" style="display: flex; align-items: center; gap: 10px;">';
+                echo '<form method="post" class="enosi-wasm-form">';
                 wp_nonce_field('del_wasm_mime_action', 'del_wasm_mime_nonce');
                 submit_button(__('Delete the MIME type for .wasm', 'enosi-embedder-unity'), 
                 'primary', 
                 'del_wasm_mime');
-                echo '<span style="color:green;">✅ ' . esc_html__('The MIME type for .wasm files is already configured in the .htaccess.', 'enosi-embedder-unity') . '</span>';
+                echo '<span class="enosi-wasm-ok">✅ ' . esc_html__('The MIME type for .wasm files is already configured in the .htaccess.', 'enosi-embedder-unity') . '</span>';
                 echo '</form>';
             }else{
-                echo '<form method="post" style="display: flex; align-items: center; gap: 10px;">';
+                echo '<form method="post" class="enosi-wasm-form">';
                 wp_nonce_field('add_wasm_mime_action', 'add_wasm_mime_nonce');
                 submit_button(
                     esc_html__('Configure the MIME type for .wasm', 'enosi-embedder-unity'),
                     'primary',
                     'add_wasm_mime'
                 );
-                echo '<span style="color:orange;">⚠️ ' . esc_html__('The MIME type for .wasm files is not configured in the .htaccess. A warning will be shown in the console at each build launch.', 'enosi-embedder-unity') . '</span>';
+                echo '<span class="enosi-wasm-warn">⚠️ ' . esc_html__('The MIME type for .wasm files is not configured in the .htaccess. A warning will be shown in the console at each build launch.', 'enosi-embedder-unity') . '</span>';
                 echo '</form>';
             }
             echo '<p>' . esc_html__('The attempt to add or remove may fail for security reasons.', 'enosi-embedder-unity') . '<br />' .
@@ -242,7 +293,10 @@ function unityWebglHandleUpload(): void
     
     $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
     if ($mime !== 'application/zip' || $ext !== 'zip') {
-        EnosiUtils::error(__('Only ZIP files are allowed.', 'enosi-embedder-unity'));
+        EnosiUtils::error(
+            __('Only ZIP files are allowed.', 'enosi-embedder-unity') . '<br>' .
+            EnosiUtils::errorGifsHtml()
+        );
         return;
     }
     

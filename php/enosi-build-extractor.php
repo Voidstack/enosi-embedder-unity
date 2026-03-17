@@ -71,8 +71,9 @@ class EnosiBuildExtractor {
             EnosiUtils::deleteFolder($this->tmpDir);
             EnosiUtils::error(
                 __('Missing expected build files. ', 'enosi-embedder-unity') .
-                EnosiUtils::arrayToString($this->expectedFiles) . '</br>' .
-                __('The .zip file MUST have the same name as the files it contains.', 'enosi-embedder-unity')
+                EnosiUtils::arrayToString($this->expectedFiles) . '<br>' .
+                __('The .zip file MUST have the same name as the files it contains.', 'enosi-embedder-unity') . '<br>' .
+                EnosiUtils::errorGifsHtml()
             );
             return false;
         }

@@ -16,9 +16,10 @@ class UnityInstanceManager {
       loaderName: this.unityCanvas.dataset.loaderName,
       showOptions: this.unityCanvas.dataset.showOptions === "true",
       showLogs: this.unityCanvas.dataset.showLogs === "true",
-      sizeMode: this.unityCanvas.dataset.sizeMode,
-      fixedHeight: parseInt(this.unityCanvas.dataset.fixedHeight, 10),
+      fixedHeight: parseInt(this.unityCanvas.dataset.fixedHeight, 10) || 0,
       aspectRatio: this.unityCanvas.dataset.aspectRatio,
+      currentUserIsAdmin: this.unityCanvas.dataset.currentUserIsAdmin === "true",
+      admMessage: this.unityCanvas.dataset.admMessage,
     };
 
     this.loader = new UnityLoader(this.unityContainer);
@@ -29,7 +30,7 @@ class UnityInstanceManager {
    */
   showBanner(msg, type) {
     const div = document.createElement("div");
-    div.innerHTML = `${enosiShortcodeData.admMessage} : ${msg}`;
+    div.innerHTML = `${this.canvasData.admMessage} : ${msg}`;
     div.style.padding = "10px";
 
     // Helper to toggle error/canvas visibility
@@ -46,7 +47,7 @@ class UnityInstanceManager {
         div.style.background = "darkred";
         break;
       case "warning":
-        if (!enosiShortcodeData.currentUserIsAdmin) return;
+        if (!this.canvasData.currentUserIsAdmin) return;
         div.style.background = "darkorange";
         setTimeout(() => {
           this.errorDiv.removeChild(div);
@@ -76,7 +77,6 @@ class UnityInstanceManager {
    * and then loading it again with the same build configuration.
    */
   async reload() {
-    console.log("reload");
     if (this.unityInstance) {
       try {
         await this.unityInstance.Quit();
@@ -97,6 +97,7 @@ class UnityInstanceManager {
   async load(buildUrl, loaderName, configOverrides = {}) {
     const files = this.getUnityBuildFiles(buildUrl, loaderName);
 
+    const noop = () => {};
     this.config = {
       dataUrl: files.dataUrl,
       frameworkUrl: files.frameworkUrl,
@@ -107,17 +108,11 @@ class UnityInstanceManager {
       productName: "EnosiStudio",
       productVersion: "1.0",
       configOverrides,
-      // showBanner: this.showBanner.bind(this),
-      // ,...configOverrides,
+      ...(!this.canvasData.showLogs && { print: noop, printErr: noop }),
     };
 
     // Load the Unity loader script
     await this.loadScript(files.loaderUrl);
-
-    const originalLog = console.log;
-    if (!this.canvasData.showLogs) {
-      console.log = () => {}; // Suppress logs if disabled
-    }
 
     this.loader.show();
 
@@ -131,11 +126,17 @@ class UnityInstanceManager {
         }
       );
 
-      // Handle container size based on mode
-      if (this.canvasData.sizeMode === "fixed-height") {
-        this.unityContainer.style.height = this.canvasData.fixedHeight + "px";
-      } else if (this.canvasData.sizeMode === "aspect-ratio") {
-        this.unityContainer.style.aspectRatio = this.canvasData.aspectRatio;
+      // Apply size constraints
+      const h = this.canvasData.fixedHeight;
+      const ar = this.canvasData.aspectRatio;
+      if (h > 0 && ar) {
+        const [arW, arH] = ar.split("/").map(Number);
+        this.unityContainer.style.height = h + "px";
+        this.unityContainer.style.width = Math.round(h * (arW / arH)) + "px";
+      } else if (h > 0) {
+        this.unityContainer.style.height = h + "px";
+      } else if (ar) {
+        this.unityContainer.style.aspectRatio = ar;
       }
 
       // Show optional toolbar if enabled
@@ -145,19 +146,20 @@ class UnityInstanceManager {
         });
       }
     } catch (e) {
-      alert(e);
+      this.showBanner(e.message ?? String(e), "error");
     } finally {
       this.loader.hide();
-      if (!this.canvasData.showLogs) {
-        console.log = originalLog;
-      }
     }
   }
 
   /**
-   * Dynamically loads an external JS script.
+   * Dynamically loads an external JS script, reusing it if already injected.
    */
   loadScript(src) {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      return Promise.resolve();
+    }
     return new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = src;
@@ -168,8 +170,8 @@ class UnityInstanceManager {
   }
 }
 
-// Initialize UnityInstanceManager for all canvas elements ending with -canvas
-document.querySelectorAll("[id$='-canvas']").forEach((canvas) => {
+// Initialize UnityInstanceManager for all Unity canvas elements
+document.querySelectorAll("canvas.unity-canvas").forEach((canvas) => {
   const uuid = canvas.id.replace("-canvas", "");
   const manager = new UnityInstanceManager(uuid);
   manager.load(manager.canvasData.buildUrl, manager.canvasData.loaderName);
