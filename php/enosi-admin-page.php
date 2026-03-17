@@ -111,6 +111,12 @@ function enosi_unity_admin_page(): void
     echo "<div class='simpleblock'>";
     echo '<h2>' . esc_html__('Build Manager', 'enosi-embedder-unity') . '</h2>';
     echo '<p>' . esc_html__('Use this page to add your Unity project by uploading the', 'enosi-embedder-unity') . ' <strong>.zip</strong> ' . esc_html__('folder of your project and manage it easily within the admin dashboard.', 'enosi-embedder-unity') . '</p>';
+    echo '<div class="notice notice-warning inline"><p>';
+    echo '<strong>⚠️ ' . esc_html__('Uncompressed builds only', 'enosi-embedder-unity') . '</strong><br>';
+    echo esc_html__('Compressed builds (.gz, .br) require server-level configuration (Content-Encoding headers) that most shared hosting providers (LiteSpeed, Nginx, and many Apache setups) do not allow plugins to set.', 'enosi-embedder-unity') . '<br>';
+    echo esc_html__('In Unity, go to', 'enosi-embedder-unity') . ' <strong>Edit → Project Settings → Player → Publishing Settings</strong> ' . esc_html__('and set', 'enosi-embedder-unity') . ' <strong>Compression Format</strong> ' . esc_html__('to', 'enosi-embedder-unity') . ' <strong>Disabled</strong>.<br>'
+        . '<a href="https://enosistudio.com/enosi-embedder-unity/" target="_blank" rel="noopener noreferrer">See the tutorial</a>';
+    echo '</p></div>';
     ?>
     
     <form method="post" enctype="multipart/form-data">
