@@ -346,7 +346,7 @@ function unityWebglHandleUpload(): void
     ]);
     
     if ($extractor->extract()) {
-        echo '<p style="color:green;">✅ Success: Build extracted and validated.</p>';
+        EnosiUtils::valid( __( 'Build extracted and validated.', 'enosi-embedder-unity' ) );
     } else {
         // Clean up target folder if extraction fails
         EnosiUtils::deleteFolder($targetDir);

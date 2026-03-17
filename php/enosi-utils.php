@@ -227,16 +227,16 @@ class EnosiUtils {
 
     // Display an error message in the WordPress admin interface
     public static function error(string $message): void {
-        echo "<p style='color:red;'>❌ " . esc_html__( 'Error: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
+        echo '<div class="notice notice-error inline"><p>❌ ' . esc_html__( 'Error: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . '</p></div>';
     }
-    
+
     // Display an informational message in the WordPress admin interface
     public static function info(string $message): void {
-        echo "<p style='color:black;'>ℹ️ " . esc_html__( 'Info: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
+        echo '<div class="notice notice-info inline"><p>ℹ️ ' . esc_html__( 'Info: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . '</p></div>';
     }
-    
+
     // Display a validation message in the WordPress admin interface
     public static function valid(string $message): void {
-        echo "<p style='color:green;'>✅ " . esc_html__( 'Success: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . "</p>";
+        echo '<div class="notice notice-success inline"><p>✅ ' . esc_html__( 'Success: ', 'enosi-embedder-unity' ) . wp_kses_post( $message ) . '</p></div>';
     }
 }

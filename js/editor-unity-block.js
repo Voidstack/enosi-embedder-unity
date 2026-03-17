@@ -102,7 +102,7 @@ registerBlockType("wpunity/unity-webgl", {
           placeholder: "ex: 16/9",
           onChange: (value) => setAttributes({ aspectRatio: value }),
           help: aspectRatio && !aspectRatioRegex.test(aspectRatio)
-            ? enosiI18n.warnExpectedRatio
+            ? el("span", null, enosiI18n.warnExpectedRatio1, el("br"), enosiI18n.warnExpectedRatio2)
             : undefined,
           __nextHasNoMarginBottom: true,
           __next40pxDefaultSize: true,

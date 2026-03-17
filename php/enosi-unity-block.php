@@ -13,7 +13,8 @@ function enosiGetTranslationStrings(): array {
     return [
         'buildChoose' => __('Choose a unity build', 'enosi-embedder-unity') . ' : ',
         'buildSelectionne' => __('Selected build', 'enosi-embedder-unity'),
-        'warnExpectedRatio' => '⚠️ ' . __("Expected format: number/number (4/3) \nIf the format is invalid, the default value will be 4/3.", 'enosi-embedder-unity'),
+        'warnExpectedRatio1' => '⚠️ ' . __('Expected format: number/number (4/3)', 'enosi-embedder-unity'),
+        'warnExpectedRatio2' => __('If the format is invalid, the aspect ratio will be ignored.', 'enosi-embedder-unity'),
         'showToolbar'     => __('Show toolbar', 'enosi-embedder-unity'),
         'showOnMobile'    => __('Display on mobile', 'enosi-embedder-unity'),
         'showLogs'        => __('Display logs in the console', 'enosi-embedder-unity'),
