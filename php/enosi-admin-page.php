@@ -59,8 +59,9 @@ function enosiDownloadUnityBuild(): void {
     header('Content-Disposition: attachment; filename="' . $build_name . '.zip"');
     header('Content-Length: ' . filesize($tmp_zip));
     header('Pragma: no-cache');
-    readfile($tmp_zip);
-    unlink($tmp_zip);
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming a temp ZIP for download, no WP_Filesystem equivalent
+    readfile($tmp_zip); // nosemgrep
+    wp_delete_file($tmp_zip);
     exit;
 }
 

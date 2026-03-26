@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 * Author URI: https://www.linkedin.com/in/baptiste-martin56/
 * License: GPL-3.0-or-later
 * License URI: https://www.gnu.org/licenses/gpl-3.0.html
-* Tested up to: 6.8.2
+* Tested up to: 6.9
 * Stable tag: 1.1.0
 * Text Domain: enosi-embedder-unity
 * Domain Path: /languages
@@ -115,12 +115,12 @@ function unityWebglShortcode($atts): string {
     <canvas id="<?php echo esc_attr($uuid)?>-canvas" class="unity-canvas"
     data-build-url="<?php echo esc_attr($build_url)?>"
     data-loader-name="<?php echo esc_attr(basename($loader_file,'.loader.js'))?>"
-    data-show-options="<?php echo $args['showOptions']?'true':'false'?>"
-    data-show-logs="<?php echo $args['showLogs']?'true':'false'?>"
+    data-show-options="<?php echo esc_attr($args['showOptions']?'true':'false')?>"
+    data-show-logs="<?php echo esc_attr($args['showLogs']?'true':'false')?>"
     data-fixed-height="<?php echo esc_attr($args['fixedHeight']); ?>"
     data-aspect-ratio="<?php echo esc_attr($args['aspectRatio'])?>"
-    data-current-user-is-admin="<?php echo $is_admin?>"
-    data-adm-message="<?php echo $adm_message?>">
+    data-current-user-is-admin="<?php echo esc_attr($is_admin?'true':'false')?>"
+    data-adm-message="<?php echo esc_attr($adm_message)?>">
     </canvas>
     </div>
     <?php return ob_get_clean();
